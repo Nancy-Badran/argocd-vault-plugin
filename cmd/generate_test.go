@@ -170,6 +170,30 @@ func TestMain(t *testing.T) {
 		}
 	})
 
+	t.Run("will read secret from namespace", func(t *testing.T) {
+		args := []string{"--useServiceAccountNamespace","./fixtures/input/nonempty/secret_from_namespace.yaml"}
+		cmd := NewGenerateCommand()
+
+		b := bytes.NewBufferString("")
+		cmd.SetArgs(args)
+		cmd.SetOut(b)
+		cmd.Execute()
+		out, err := ioutil.ReadAll(b) // Read buffer to bytes
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		buf, err := ioutil.ReadFile("../fixtures/output/secret_from_namespace.yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		expected := string(buf)
+		if string(out) != expected {
+			t.Fatalf("expected %s but got %s", expected, string(out))
+		}
+	})
+
 	os.Unsetenv("AVP_TYPE")
 	os.Unsetenv("VAULT_ADDR")
 	os.Unsetenv("AVP_AUTH_TYPE")
